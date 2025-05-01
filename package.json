@@ -13,12 +13,16 @@
   "dependencies": {
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "glob": "^11.0.2",
     "module-alias": "^2.2.3",
     "mongoose": "^8.14.1",
     "mysql2": "^3.14.1",
     "pg": "^8.15.6",
+    "pluralize": "^8.0.0",
     "sequelize": "^6.37.7",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
@@ -26,12 +30,17 @@
     "@types/mongoose": "^5.11.96",
     "@types/node": "^22.15.3",
     "@types/pg": "^8.11.14",
+    "@types/pluralize": "^0.0.33",
     "@types/sqlite3": "^3.1.11",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   },
   "_moduleAliases": {
+    "@swagger": "system/swagger",
     "@connections": "system/connections",
     "@system": "system",
     "@controller": "app/controller",

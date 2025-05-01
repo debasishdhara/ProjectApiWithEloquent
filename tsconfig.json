@@ -10,6 +10,7 @@
     "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
     "baseUrl": ".",
     "paths": {
+      "@swagger/*": ["system/swagger/*"],
       "@connections/*": ["system/connections/*"],
       "@system/*": ["system/*"],
       "@controller/*": ["app/controller/*"],
@@ -18,7 +19,7 @@
       "@service/*": ["app/service/*"],
       "@utils/*": ["app/utils/*"],
       "@config/*": ["app/config/*"],
-      "@routes/*": ["routes/*"]
+      "@routes/*": ["routes/*"],
     },
     "moduleResolution": "node",
   },

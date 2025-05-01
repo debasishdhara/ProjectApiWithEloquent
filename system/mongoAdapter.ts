@@ -77,3 +77,72 @@ export async function connectMongo() {
 
   return mongoose;
 }
+
+export function convertMongoModelsToSwaggerSchemas(models: Record<string, any>) {
+    const schemas: Record<string, any> = {};
+  
+    for (const [modelName, model] of Object.entries(models)) {
+      const properties: Record<string, any> = {};
+      const required: string[] = [];
+  
+      for (const [field, config] of Object.entries(model.schema)) {
+        const fieldConfig = config as { type: string; allowNull?: boolean; unique?: boolean };
+        const swaggerField: Record<string, any> = {};
+  
+        switch (fieldConfig.type) {
+          case 'STRING':
+          case 'TEXT':
+          case 'UUID':
+          case 'UUIDV4':
+          case 'TIME':
+          case 'ENUM':
+            swaggerField.type = 'string';
+            break;
+          case 'INTEGER':
+          case 'BIGINT':
+          case 'FLOAT':
+          case 'DOUBLE':
+          case 'DECIMAL':
+            swaggerField.type = 'number';
+            break;
+          case 'BOOLEAN':
+            swaggerField.type = 'boolean';
+            break;
+          case 'DATE':
+          case 'DATEONLY':
+            swaggerField.type = 'string';
+            swaggerField.format = 'date-time';
+            break;
+          case 'JSON':
+          case 'JSONB':
+            swaggerField.type = 'object';
+            break;
+          case 'BLOB':
+            swaggerField.type = 'string';
+            swaggerField.format = 'binary';
+            break;
+          default:
+            swaggerField.type = 'string';
+        }
+  
+        if (fieldConfig.unique) {
+          swaggerField.uniqueItems = true; // Not a true Swagger property, but can be documented
+        }
+  
+        if (fieldConfig.allowNull === false) {
+          required.push(field);
+        }
+  
+        properties[field] = swaggerField;
+      }
+  
+      schemas[modelName] = {
+        type: 'object',
+        properties,
+        ...(required.length > 0 ? { required } : {}),
+      };
+    }
+  
+    return schemas;
+}
+  
