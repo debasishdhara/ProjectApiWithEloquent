@@ -1,8 +1,6 @@
 import { dbConfig } from '@config/config';
 import { connectMongo } from '@system/mongoAdapter';
-import { connectMySQL } from '@system/sqlAdapter';
-import { connectPostgres } from '@system/postgresAdapter';
-import { connectSQLite } from '@system/sqliteAdapter';
+import { connectSQL } from '@system/sqlAdapter';
 async function connectDB() {
   const active = dbConfig.default;
 
@@ -11,13 +9,13 @@ async function connectDB() {
       return connectMongo();
       break;
     case 'mysql':
-      return connectMySQL();
+      return connectSQL('mysql');
       break;
     case 'postgres':
-      return connectPostgres();
+      return connectSQL('postgres');
       break;
     case 'sqlite':
-      return connectSQLite();
+      return connectSQL('sqlite');
       break;
     default:
       throw new Error('Unsupported DB type');
