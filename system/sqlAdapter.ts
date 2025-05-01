@@ -2,7 +2,8 @@
 import { dbConfig } from '@config/config';
 import { Sequelize, DataTypes, DataType } from 'sequelize';
 import { loadModels } from './modelLoader';
-
+import dotenv from 'dotenv';
+dotenv.config();
 // Manual map of supported types
 const typeMap: Record<string, DataType> = {
   STRING: DataTypes.STRING,
@@ -34,6 +35,7 @@ interface ModelSchema {
   [key: string]: FieldDefinition;
 }
 
+let cachedModels:any = null;
 export async function connectSQL(databaseType: 'mysql' | 'postgres' | 'sqlite') {
   const dbConfigConnection: any = dbConfig.connections[databaseType];
   let sequelize: Sequelize;
@@ -97,6 +99,14 @@ export async function connectSQL(databaseType: 'mysql' | 'postgres' | 'sqlite') 
 
   // Sync the models and update the database schema if needed
   await sequelize.sync({ alter: true }); // this will update the database schema based on the model
+  cachedModels = models;
+  return { sequelize, cachedModels };
+}
 
-  return { sequelize, models };
+
+export async function getSQLModels(DBType: 'mysql' | 'postgres' | 'sqlite') {
+  if (!cachedModels) {
+    const { cachedModels } = await connectSQL(DBType);
+  }
+  return cachedModels;
 }

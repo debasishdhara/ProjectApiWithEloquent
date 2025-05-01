@@ -6,20 +6,20 @@ async function connectDB() {
 
   switch (active) {
     case 'mongo': {
-      const { mongoose, models } = await connectMongo();
-      return models;
+      const { mongoose, cachedMongoModels } = await connectMongo();
+      return cachedMongoModels;
     }
     case 'mysql': {
-      const { sequelize, models } = await connectSQL('mysql');
-      return models;
+      const { sequelize, cachedModels } = await connectSQL('mysql');
+      return cachedModels;
     }
     case 'postgres': {
-      const { sequelize, models } = await connectSQL('postgres');
-      return models;
+      const { sequelize, cachedModels } = await connectSQL('postgres');
+      return cachedModels;
     }
     case 'sqlite': {
-      const { sequelize, models } = await connectSQL('sqlite');
-      return models;
+      const { sequelize, cachedModels } = await connectSQL('sqlite');
+      return cachedModels;
     }
     default:
       throw new Error('Unsupported DB type');

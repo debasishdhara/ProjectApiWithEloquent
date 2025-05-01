@@ -1,22 +1,22 @@
-import { connectSQL } from '@system/sqlAdapter'; // dynamic SQL loader
-import { connectMongo } from '@system/mongoAdapter'; // dynamic Mongo loader
+import { getSQLModels } from '@system/sqlAdapter'; // dynamic SQL loader
+import { getMongoModels } from '@system/mongoAdapter'; // dynamic Mongo loader
 import { DatabaseService, activeDbType } from '@system/databaseService';
 
 export class UserService {
   private static async getUserModel(): Promise<any> {
     if (activeDbType === 'mongo') {
-      const {models} = await connectMongo();
-      return models.User;
+      const cachedMongoModels = await getMongoModels();
+      return cachedMongoModels.User;
     } else {
-      const {models} = await connectSQL(activeDbType);
-      return models.User;
+      const cachedModels = await getSQLModels(activeDbType);
+      return cachedModels.User;
     }
   }
 
   static async create(userData: any) {
     try {
-      if (!userData.username || !userData.email) {
-        throw new Error('Username and email are required');
+      if (!userData.name || !userData.email) {
+        throw new Error('Name and email are required');
       }
 
       const User = await this.getUserModel();
