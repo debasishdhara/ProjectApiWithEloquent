@@ -29,6 +29,11 @@ const routeJson: Record<string, any> = {};
 const httpMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'] as const;
 type HttpMethod = typeof httpMethods[number];
 
+// Helper function to handle logging after all routes are loaded
+const logRoutes = () => {
+  console.log('routeJson:', routeJson); // Log after the route files are processed
+};
+
 fs.readdirSync(routesPath).forEach((file) => {
   if (file === 'index.ts' || file === 'index.js') return; // skip this file
 
@@ -46,9 +51,11 @@ fs.readdirSync(routesPath).forEach((file) => {
         baseRoutePath = '/' + pluralize(name.toLowerCase());
       }
       console.log(`${name} route: ${baseRoutePath}`);
+      
+      // Process each route definition
       Object.entries(routeDefs).forEach(([routePath, methods]) => {
         let currentMethods: Record<string, any> = {};
-
+        
         Object.entries(methods).forEach(([method, config]) => {
           const { functions, ...restConfig } = config;
           currentMethods[method] = restConfig;
@@ -65,11 +72,11 @@ fs.readdirSync(routesPath).forEach((file) => {
               ...handlers: RequestHandler[]
             ) => Router;
 
-            methodFunc(routePath, ...functions);
+            methodFunc(routePath, ...functions); // Register the handler functions
           }
         });
 
-        // Remove the 'functions' key from each method in currentMethods
+        // Clean up the 'functions' key from each method in currentMethods
         Object.keys(currentMethods).forEach((path) => {
           let pathConfig = currentMethods[path];
           Object.keys(pathConfig).forEach((method) => {
@@ -79,17 +86,19 @@ fs.readdirSync(routesPath).forEach((file) => {
           });
         });
 
-        routeJson[routePath] = currentMethods;
+        routeJson[routePath] = currentMethods; // Add route to routeJson
       });
 
       allRoutes.use(baseRoutePath, router);
+
+      // Log after processing all route files
+      logRoutes();
     }).catch(err => {
       console.error(`Error loading route file ${filePath}:`, err);
     });
   }
 });
 
-// Export all routes
 export {
   allRoutes,
   routeJson,

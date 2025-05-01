@@ -75,7 +75,7 @@ export async function connectMongo() {
     }
   });
 
-  return mongoose;
+  return {mongoose, models};
 }
 
 export function convertMongoModelsToSwaggerSchemas(models: Record<string, any>) {
