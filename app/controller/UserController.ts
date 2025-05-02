@@ -7,10 +7,12 @@ export class UserController {
   static async createUser(req: Request, res: Response): Promise<void> {
     try {
       const userData = req.body;
+      // Validation logic here
+
       const newUser = await UserService.create(userData); // Logic in UserService to save user
-      res.status(201).json(newUser);
+      res.status(200).json({ success:true, data: newUser });
     } catch (error: any) {
-      res.status(500).json({ message: 'Error creating user', error: error.message });
+      res.status(200).json({ success:false, error: error.message });
     }
   }
 
@@ -18,9 +20,9 @@ export class UserController {
   static async getUsers(req: Request, res: Response): Promise<void> {
     try {
       const users = await UserService.getAll(); // Logic to fetch all users
-      res.status(200).json(users);
+      res.status(200).json({ success:true, data: users });
     } catch (error: any) {
-      res.status(500).json({ message: 'Error fetching users', error: error.message });
+      res.status(200).json({ success:false, error: error.message });
     }
   }
 
@@ -30,12 +32,12 @@ export class UserController {
       const { id } = req.params;
       const user = await UserService.getById(id); // Fetch user by ID
       if (user) {
-        res.status(200).json(user);
+        res.status(200).json({success:false,data:user});
       } else {
-        res.status(404).json({ message: 'User not found' });
+        res.status(200).json({ success:false, error: 'User not found' });
       }
     } catch (error: any) {
-      res.status(500).json({ message: 'Error fetching user', error: error.message });
+      res.status(200).json({ success:false, error: error.message });
     }
   }
 
@@ -46,12 +48,12 @@ export class UserController {
       const userData = req.body;
       const updatedUser = await UserService.update(id, userData); // Logic to update user
       if (updatedUser) {
-        res.status(200).json(updatedUser);
+        res.status(200).json({success:false,data:updatedUser});
       } else {
-        res.status(404).json({ message: 'User not found' });
+        res.status(200).json({ success:false,error: 'User not found' });
       }
     } catch (error: any) {
-      res.status(500).json({ message: 'Error updating user', error: error.message });
+      res.status(200).json({ success:false, error: error.message });
     }
   }
 
@@ -61,12 +63,12 @@ export class UserController {
       const { id } = req.params;
       const success = await UserService.delete(id); // Logic to delete user
       if (success) {
-        res.status(200).json({ message: 'User deleted successfully' });
+        res.status(200).json({ success:true,message: 'User deleted successfully' });
       } else {
-        res.status(404).json({ message: 'User not found' });
+        res.status(200).json({success:false, error: 'User not found' });
       }
     } catch (error: any) {
-      res.status(500).json({ message: 'Error deleting user', error: error.message });
+      res.status(200).json({ success:false, error: error.message });
     }
   }
 }
