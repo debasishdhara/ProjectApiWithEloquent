@@ -1,7 +1,7 @@
 import { getSQLModels } from '@system/sqlAdapter'; // dynamic SQL loader
 import { getMongoModels } from '@system/mongoAdapter'; // dynamic Mongo loader
-import { DatabaseService, activeDbType } from '@system/databaseService';
-import { softDelete } from '@model/User';
+import { DatabaseService } from '@system/databaseService';
+import { activeDbType } from '@system/types';
 
 export class UserService {
   private static async getUserModel(): Promise<any> {
