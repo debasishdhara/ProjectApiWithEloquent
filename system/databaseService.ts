@@ -19,10 +19,18 @@ interface CreateOrUpdateData {
 // Define a generic database service class
 export class DatabaseService {
   // MongoDB create
-  static async createMongo<T>(model: MongooseModel<T>, data: CreateOrUpdateData): Promise<any> {
+  static async createMongo<T>(model: MongooseModel<T>, data: CreateOrUpdateData,softDelete?:boolean): Promise<any> {
     try {
-      const newDocument = new model(data);
-      return await newDocument.save();
+      if(softDelete){
+        const newDocument = new model({
+          ...data,
+          deleted_at: null, // explicitly set if softDelete is used
+        });
+        return await newDocument.save();
+      }else{
+        const newDocument = new model(data);
+        return await newDocument.save();
+      }
     } catch (error: any) {
       throw new Error(`MongoDB Create Error: ${error.message}`);
     }
@@ -54,7 +62,8 @@ export class DatabaseService {
   // MySQL create
   static async createMySQL<T extends SequelizeModel>(
     model: any,
-    data: CreateOrUpdateData
+    data: CreateOrUpdateData,
+    softDelete?:boolean
   ): Promise<any> {
     try {
       return await model.create(data);
@@ -102,12 +111,13 @@ export class DatabaseService {
   // Generic function for handling CRUD for both MongoDB and MySQL
   static async create<T>(
     model: MongooseModel<T> | SequelizeModel,
-    data: CreateOrUpdateData
+    data: CreateOrUpdateData,
+    softDelete?: boolean
   ): Promise<any>  {
     if (activeDbType === 'mongo') {
-      return this.createMongo(model as MongooseModel<T>, data);
+      return this.createMongo(model as MongooseModel<T>, data,softDelete);
     } else {
-      return this.createMySQL(model as SequelizeModel, data);
+      return this.createMySQL(model as SequelizeModel, data,softDelete);
     }
   }
 
@@ -133,4 +143,54 @@ export class DatabaseService {
       return this.deleteMySQL(model as SequelizeModel, id as number);
     }
   }
+
+
+  static async getMongo<T>(
+    model: MongooseModel<T>,
+    data: CreateOrUpdateData = {},
+    softDelete?: boolean
+  ): Promise<any> {
+    const query: Record<string, any> = {};
+  
+    // Only add data fields to query if data exists
+    if (Object.keys(data).length > 0) {
+      Object.assign(query, data);
+    }
+  
+    // Apply soft delete filtering if required
+    if (softDelete) {
+      query.deleted_at = null;
+    }
+  
+    // Return the result
+    return await model.find(query).exec();
+  }
+  
+  static async getMySQL(
+    model: SequelizeModel,
+    data: CreateOrUpdateData = {},
+    softDelete?: boolean
+  ): Promise<any> {
+    const query: any = {};
+  
+   // Only add data fields to query if data exists
+   if (Object.keys(data).length > 0) {
+      Object.assign(query, data);
+    }
+
+  }
+  
+    
+  static async get<T>(
+    model: MongooseModel<T> | SequelizeModel,
+    data: CreateOrUpdateData,
+    softDelete?: boolean
+  ): Promise<any> {
+    if (activeDbType === 'mongo') {
+      return this.getMongo(model as MongooseModel<T>, data, softDelete);
+    } else {
+      return this.getMySQL(model as SequelizeModel, data, softDelete);
+    }
+  }
+  
 }

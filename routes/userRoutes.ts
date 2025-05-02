@@ -8,7 +8,7 @@ const userRoutes = {
     "/users": { // /users route
         "get": {
             "summary": "Get all users",
-            "functions": [],
+            "functions": [UserController.getUsers],
             "tags": ["Users"],
             "security": [
                 {

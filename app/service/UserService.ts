@@ -20,7 +20,7 @@ export class UserService {
       }
 
       const User = await this.getUserModel();
-      return await DatabaseService.create(User, userData);
+      return await DatabaseService.create(User, userData, User.schema.options.softDelete);
     } catch (error: any) {
       throw new Error(`Error creating user: ${error.message}`);
     }

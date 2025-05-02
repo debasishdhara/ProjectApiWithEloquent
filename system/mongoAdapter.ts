@@ -1,10 +1,12 @@
 // system/mongoAdapter.ts
 
-import mongoose, { Model, Schema } from 'mongoose';
+import mongoose, { Model, Query, Schema } from 'mongoose';
 import { dbConfig } from '@config/config';
 import { loadModels } from './modelLoader';
 
-
+interface CustomSchemaOptions extends mongoose.SchemaOptions {
+    softDelete?: boolean;
+}
 const cachedMongoModels: Record<string, Model<any>> = {}; // Collect all registered models
 // Mapping Sequelize types to Mongoose Schema types
 const typeMap: Record<string, any> = {
@@ -65,13 +67,25 @@ export async function connectMongo() {
                 mongooseSchemaDef[field] = fieldConfig;
             }
 
-            const schemaOptions: mongoose.SchemaOptions = {
-                timestamps: model.timestamps || false,
+            const schemaOptions: CustomSchemaOptions = {
+                timestamps: model.timestamps
+                ? { createdAt: 'created_at', updatedAt: 'updated_at' }
+                : false,
                 versionKey: false,
                 collection: model.tableName || undefined,
+                softDelete: model.softDelete || false, // ✅ your custom flag
             };
-
             const mongooseSchema = new Schema(mongooseSchemaDef, schemaOptions);
+            if (model.softDelete) {
+                mongooseSchema.add({
+                  deleted_at: { type: Date, default: null },
+                });
+                // Exclude soft-deleted docs by default
+                // mongooseSchema.pre(/^find/, function (next) {
+                //     (this as Query<any, any>).where({ deleted_at: null });
+                //     next();
+                // });
+            }
             cachedMongoModels[model.modelName] = mongoose.model(model.modelName, mongooseSchema);
         }
     });
