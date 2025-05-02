@@ -58,10 +58,11 @@ export const loadRoutes = async () => {
                         let functionsExists = false;
                         Object.entries(config).forEach(([method, config]) => {
                             const { functions, ...restConfig } = config;
-                            currentMethods[method] = restConfig;
-                            // console.log("lowerMethod",functions);
+                            // console.log("method",method);
+                            // console.log("restConfig",restConfig);
                             if (functions && functions.length > 0) {
                                 functionsExists = true;
+                                currentMethods[method] = restConfig;
                             }
                             const lowerMethod = method.toLowerCase() as HttpMethod;
                             const fullPath = pathDetails === baseRoutePath ? pathDetails : defaultRoute + pathDetails;
@@ -72,22 +73,12 @@ export const loadRoutes = async () => {
                                 functions.every(fn => typeof fn === 'function') &&
                                 functionsExists == true
                             ) {
-                                console.log(`[REGISTERED] ${lowerMethod.toUpperCase()} ${fullPath}`);
+                                // console.log(`[REGISTERED] ${lowerMethod.toUpperCase()} ${fullPath}`);
                                 router[lowerMethod](usePath, ...functions);
                             }
                         });
                     });
-
-                    Object.keys(currentMethods).forEach((path) => {
-                        let pathConfig = currentMethods[path];
-                        Object.keys(pathConfig).forEach((method) => {
-                            let methodConfig = pathConfig[method];
-                            const { functions, ...restConfig } = methodConfig;
-                            pathConfig[method] = restConfig;
-                        });
-                    });
-
-                    routeJson[routePath] = currentMethods; // Add route to routeJson
+                    routeJson[baseRoutePath] = currentMethods; // Add route to routeJson
                     allRoutes.use(baseRoutePath, router);
                 });
 
@@ -101,23 +92,6 @@ export const loadRoutes = async () => {
     // Log routes after all files have been processed
     // console.log('Routes loaded:', routeJson);
 };
-const logAllRoutes = (router: express.Router) => {
-    console.log('\n📚 Registered Routes:\n');
-    router.stack.forEach((layer: any) => {
-        if (layer.route) {
-            const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
-            console.log(`- ${methods} ${layer.route.path}`);
-        } else if (layer.name === 'router' && layer.handle.stack) {
-            layer.handle.stack.forEach((nested: any) => {
-                if (nested.route) {
-                    const methods = Object.keys(nested.route.methods).join(', ').toUpperCase();
-                    console.log(`- ${methods} ${nested.route.path}`);
-                }
-            });
-        }
-    });
-};
-
 
 export {
     allRoutes,

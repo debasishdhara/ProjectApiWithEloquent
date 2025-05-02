@@ -47,7 +47,7 @@ const userRoutes = {
                 }
             },
             "responses": {
-                "201": {
+                "200": {
                     "description": "User created",
                     "content": {
                         "application/json": {
@@ -79,7 +79,7 @@ const userRoutes = {
                 }*/
             },
             "responses": {
-                "201": {
+                "200": {
                     "description": "User created",
                     "content": {
                         "application/json": {
