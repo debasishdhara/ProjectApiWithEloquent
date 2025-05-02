@@ -1,6 +1,6 @@
 // system/sqlAdapter.ts
 import { dbConfig } from '@config/config';
-import { Sequelize, DataTypes, DataType } from 'sequelize';
+import { Sequelize, DataTypes, DataType, ModelStatic, Model } from 'sequelize';
 import { loadModels } from './modelLoader';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -33,6 +33,13 @@ interface FieldDefinition {
 
 interface ModelSchema {
   [key: string]: FieldDefinition;
+}
+interface CustomModelStatic extends ModelStatic<Model> {
+  schemaOptions?: {
+    softDelete?: boolean;
+    timestamps?: boolean;
+    tableName?: string;
+  };
 }
 
 let cachedModels:any = null;
@@ -91,9 +98,13 @@ export async function connectSQL(databaseType: 'mysql' | 'postgres' | 'sqlite') 
       updatedAt: 'updated_at', // specify custom field for updated timestamp
       paranoid: def.softDelete ?? false,
       deletedAt: 'deleted_at', // specify custom field for deleted timestamp
-      underscored: true, // ensure all column names are in snake_case
+      underscored: true, // ensure all column names are in snake_case      
     });
-
+    (model as CustomModelStatic).schemaOptions = {
+      softDelete: def.softDelete ?? false,
+      timestamps: def.timestamps ?? true,
+      tableName: def.tableName || modelName.toLowerCase(),
+    };
     models[modelName] = model;
   }
 

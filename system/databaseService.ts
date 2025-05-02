@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import mongoose, { Model as MongooseModel } from 'mongoose';
-import { DestroyOptions, Model as SequelizeModel } from 'sequelize';
+import { DestroyOptions, ModelStatic, Model as SequelizeModel } from 'sequelize';
 
 // Initialize dotenv
 dotenv.config();
@@ -50,10 +50,15 @@ export class DatabaseService {
   }
 
   // MongoDB delete
-  static async deleteMongo<T>(model: MongooseModel<T>, id: string): Promise<boolean> {
+  static async deleteMongo<T>(model: MongooseModel<T>, id: string,softDelete?:boolean): Promise<boolean> {
     try {
-      const result = await model.findByIdAndDelete(id);
-      return result !== null;
+      if(softDelete){
+        const result = await model.findByIdAndUpdate(id, { deleted_at: new Date() }, { new: true });
+        return result !== null;
+      }else{
+        const result = await model.findByIdAndDelete(id);
+        return result !== null;
+      }
     } catch (error: any) {
       throw new Error(`MongoDB Delete Error: ${error.message}`);
     }
@@ -96,13 +101,21 @@ export class DatabaseService {
   // MySQL delete
   static async deleteMySQL<T extends SequelizeModel>(
     model: T,
-    id: number | string
+    id: number | string,
+    softDelete?:boolean
   ): Promise<boolean> {
     try {
-      const affectedRows:any = await model.destroy({
-        where: { id },
-      } as DestroyOptions);
-      return affectedRows > 0;
+      if(softDelete){
+        const affectedRows:any = await model.update({ deleted_at: new Date() }, {
+          where: { id },
+        } as DestroyOptions);
+        return affectedRows > 0;
+      }else{
+        const affectedRows:any = await model.destroy({
+          where: { id },
+        } as DestroyOptions);
+        return affectedRows > 0;
+      }
     } catch (error: any) {
       throw new Error(`MySQL Delete Error: ${error.message}`);
     }
@@ -135,12 +148,13 @@ export class DatabaseService {
 
   static async delete<T>(
     model: MongooseModel<T> | SequelizeModel,
-    id: string | number
+    id: string | number,
+    softDelete?: boolean
   ): Promise<boolean> {
     if (activeDbType === 'mongo') {
-      return this.deleteMongo(model as MongooseModel<T>, id as string);
+      return this.deleteMongo(model as MongooseModel<T>, id as string,softDelete);
     } else {
-      return this.deleteMySQL(model as SequelizeModel, id as number);
+      return this.deleteMySQL(model as SequelizeModel, id as number,softDelete);
     }
   }
 
@@ -167,29 +181,39 @@ export class DatabaseService {
   }
   
   static async getMySQL(
-    model: SequelizeModel,
+    model: ModelStatic<SequelizeModel<any, any>>,
     data: CreateOrUpdateData = {},
     softDelete?: boolean
   ): Promise<any> {
-    const query: any = {};
+    const query: any = {
+      where: { ...data },
+    };
   
-   // Only add data fields to query if data exists
-   if (Object.keys(data).length > 0) {
-      Object.assign(query, data);
+    // Apply soft delete logic if enabled
+    if (softDelete) {
+      query.where.deleted_at = null; // Assuming `paranoid` mode is used
     }
-
+  
+    try {
+      const result = await model.findAll(query);
+      return result;
+    } catch (error) {
+      console.error('Error in getMySQL:', error);
+      throw error;
+    }
   }
+  
   
     
   static async get<T>(
-    model: MongooseModel<T> | SequelizeModel,
+    model: MongooseModel<T> | ModelStatic<SequelizeModel<any, any>>,
     data: CreateOrUpdateData,
     softDelete?: boolean
   ): Promise<any> {
     if (activeDbType === 'mongo') {
       return this.getMongo(model as MongooseModel<T>, data, softDelete);
     } else {
-      return this.getMySQL(model as SequelizeModel, data, softDelete);
+      return this.getMySQL(model as ModelStatic<SequelizeModel<any, any>>, data, softDelete);
     }
   }
   
