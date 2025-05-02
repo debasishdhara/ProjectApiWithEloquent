@@ -159,6 +159,7 @@ export class DatabaseService {
   }
 
 
+  // Generic both mongo and mysql get function with soft delete
   static async getMongo<T>(
     model: MongooseModel<T>,
     data: CreateOrUpdateData = {},
@@ -202,9 +203,7 @@ export class DatabaseService {
       throw error;
     }
   }
-  
-  
-    
+     
   static async get<T>(
     model: MongooseModel<T> | ModelStatic<SequelizeModel<any, any>>,
     data: CreateOrUpdateData,
@@ -217,4 +216,15 @@ export class DatabaseService {
     }
   }
   
+  // force delete for both mongo and mysql
+  static async forceDelete<T>(
+    model: MongooseModel<T> | SequelizeModel,
+    id: string | number
+  ): Promise<boolean> {
+    if (activeDbType === 'mongo') {
+      return this.deleteMongo(model as MongooseModel<T>, id as string,false);
+    }else {
+      return this.deleteMySQL(model as SequelizeModel, id as number,false);
+    }
+  }
 }
