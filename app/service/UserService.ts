@@ -30,7 +30,6 @@ export class UserService {
   static async getAll() {
     try {
       const {User,softDelete} = await this.getUserModel();
-      console.log(softDelete);
       return await DatabaseService.get(User,{}, softDelete);
     } catch (error: any) {
       throw new Error(`Error fetching users: ${error.message}`);
