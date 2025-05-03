@@ -21,6 +21,6 @@ export const schema = {
     // blobField: { type: 'BLOB', allowNull: true }      
 };
 
-export const tableName = 'SBases';        // optional
+export const tableName = 'SRBase';        // optional
 export const timestamps = true;          // optional
 export const softDelete = true;          // optional
