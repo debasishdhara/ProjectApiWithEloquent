@@ -90,3 +90,24 @@ export async function forceDeleteMySQL<T>(
     throw new Error(`MySQL Force Delete Error: ${error.message}`);
   }
 }
+
+
+export async function getByIdMySQL<T extends SequelizeModel>(
+  model: ModelStatic<T>,
+  id: number | string,
+  softDelete?: boolean
+): Promise<any> {
+  try {
+    const query: any = {
+      where: { id },
+    };
+    if (softDelete) {
+      query.where.deleted_at = null;
+    }
+    const result = await model.findByPk(query);
+    return result;
+  } catch (error) {
+    console.error('Error in getByIdMySQL:', error);
+    throw error;
+  }
+}

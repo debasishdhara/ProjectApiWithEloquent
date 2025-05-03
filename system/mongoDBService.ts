@@ -81,3 +81,18 @@ export async function forceDeleteMongo<T>(
     throw new Error(`MongoDB Force Delete Error: ${error.message}`);
   }
 }
+
+export async function getByIdMongo<T>(
+  model: MongooseModel<T>,
+  id: string,
+  softDelete?: boolean
+): Promise<any> {
+  try {
+    if (softDelete) {
+      return await model.findById(id).where('deleted_at').equals(null).exec();
+    }
+    return await model.findById(id).exec();
+  } catch (error: any) {
+    throw new Error(`MongoDB Get By ID Error: ${error.message}`);
+  }
+}

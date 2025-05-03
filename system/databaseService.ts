@@ -64,6 +64,19 @@ export class DatabaseService {
     }
   }
 
+  static async getById<T>(
+    model: MongooseModel<T> | ModelStatic<SequelizeModel<any, any>>,
+    id: string | number,
+    softDelete?: boolean
+  ): Promise<any> {
+    if (activeDbType === 'mongo') {
+      const { getByIdMongo } = await import('@system/mongoDBService');
+      return getByIdMongo(model as MongooseModel<T>, id as string, softDelete);
+    } else {
+      const { getByIdMySQL } = await import('@system/mysqlDBService');
+      return getByIdMySQL(model as ModelStatic<SequelizeModel<any, any>>, id as number, softDelete);
+    }
+  }
   static async forceDelete<T>(
     model: MongooseModel<T> | SequelizeModel,
     id: string | number
