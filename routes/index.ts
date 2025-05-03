@@ -48,16 +48,17 @@ export const loadRoutes = async () => {
                     baseRoutePath = '/';
                     defaultRoute = '/';
                 } else {
-                    baseRoutePath = '/' + pluralize(name.toLowerCase());
+                    baseRoutePath = '/'; //  + pluralize(name.toLowerCase())
                     defaultRoute = baseRoutePath;
                 }
                 // Process each route definition
                 Object.entries(routeDefs).forEach(([routePath, methods]) => {
-                    let currentMethods: Record<string, any> = {};
                     Object.entries(methods).forEach(([pathDetails, config]) => {
-                        let functionsExists = false;
+                        let currentMethods: Record<string, any> = {};
+                        let usePath = baseRoutePath;
                         Object.entries(config).forEach(([method, config]) => {
                             const { functions, ...restConfig } = config;
+                            let functionsExists = false;
                             // console.log("method",method);
                             // console.log("restConfig",restConfig);
                             if (functions && functions.length > 0) {
@@ -66,22 +67,24 @@ export const loadRoutes = async () => {
                             }
                             const lowerMethod = method.toLowerCase() as HttpMethod;
                             const fullPath = pathDetails === baseRoutePath ? pathDetails : defaultRoute + pathDetails;
-                            const usePath = pathDetails === baseRoutePath ? '/' : pathDetails;
+                            usePath = pathDetails; // pathDetails === baseRoutePath ? '/' : 
                             if (
+                                functionsExists == true &&
                                 Array.isArray(functions) &&
                                 httpMethods.includes(lowerMethod) &&
-                                functions.every(fn => typeof fn === 'function') &&
-                                functionsExists == true
+                                functions.every(fn => typeof fn === 'function')
+                                
                             ) {
                                 // console.log(`[REGISTERED] ${lowerMethod.toUpperCase()} ${fullPath}`);
                                 router[lowerMethod](usePath, ...functions);
                             }
                         });
-                    });
-                    routeJson[baseRoutePath] = currentMethods; // Add route to routeJson
+                        // console.log("currentMethods",currentMethods);
+                        routeJson[usePath] = currentMethods;
+                    }); // Add route to routeJson
                     allRoutes.use(baseRoutePath, router);
                 });
-
+                // console.log(`[REGISTERED] Routes`, JSON.stringify(routeJson, null, 2));
 
             } catch (err) {
                 console.error(`Error loading route file ${filePath}:`, err);

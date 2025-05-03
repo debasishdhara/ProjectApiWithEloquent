@@ -33,7 +33,7 @@ const userRoutes = {
         },
         "post": {
             "summary": "Create a new user",
-            "functions": [UserController.createUser],
+            "functions": [],
             "security": [],
             "tags": ["Users"],
             "requestBody": {
@@ -65,18 +65,18 @@ const userRoutes = {
     "/registration": {
         "post": {
             "summary": "Create a new user",
-            "functions": [],
+            "functions": [UserController.createUser],
             "security": [],
             "tags": ["Users"],
             "requestBody": {
                 "required": true,
-                /*"content": {
+                "content": {
                   "application/json": {
                     "schema": {
                       "$ref": "#/components/schemas/User"
                     }
                   }
-                }*/
+                }
             },
             "responses": {
                 "200": {
