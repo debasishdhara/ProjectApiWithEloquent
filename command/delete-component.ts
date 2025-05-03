@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { createFile } from './work/fileUpdateAndCreate';
 
 // Get the router name passed as an argument
 const routerName = process.argv[2];
@@ -25,39 +24,29 @@ const dirPath = path.resolve(__dirname, '..');
 // Paths for file creation
 
 // create model
-const modelSourcePath = path.join(__dirname, 'baseStructure', 'models', 'base.ts');
 const modelDestinationPath = path.join(dirPath, 'app', 'model', `${toSentenceCase(routerName)}.ts`);
 
 // create services
-const serviceSourcePath = path.join(__dirname, 'baseStructure', 'services', 'BaseService.ts');
 const serviceDestinationPath = path.join(dirPath, 'app', 'service', `${toSentenceCase(routerName)}Service.ts`);
 
 // create controller
-const controllerSourcePath = path.join(__dirname, 'baseStructure', 'controllers', 'BaseController.ts');
 const controllerDestinationPath = path.join(dirPath, 'app', 'controller', `${toSentenceCase(routerName)}Controller.ts`);
 
 // create routes
-const routeSourcePath = path.join(__dirname, 'baseStructure', 'routes', 'baseRouters.ts');
 const routeDestinationPath = path.join(dirPath, 'routes', `${routerName}Routes.ts`);
 
 // Utility to conditionally create files
-async function createIfNotExists(sourcePath: string, destinationPath: string, label: string) {
+async function createIfNotExists(destinationPath: string, label: string) {
   if (fs.existsSync(destinationPath)) {
-    console.log(`⚠️  ${label} already exists at ${destinationPath}. Skipping creation.`);
-  } else {
-    const result = await createFile(sourcePath, destinationPath, routerName);
-    if (result) {
-      console.log(`✅ ${label} created at ${destinationPath}`);
-    } else {
-      console.error(`❌ Failed to create ${label}`);
-    }
+    fs.unlinkSync(destinationPath);
+    console.log(`✅ Deleted existing ${label} at ${destinationPath}`);
   }
 }
 
 // Run creations
 (async () => {
-  await createIfNotExists(modelSourcePath, modelDestinationPath, 'Model');
-  await createIfNotExists(serviceSourcePath, serviceDestinationPath, 'Service');
-  await createIfNotExists(controllerSourcePath, controllerDestinationPath, 'Controller');
-  await createIfNotExists(routeSourcePath, routeDestinationPath, 'Router');
+  await createIfNotExists(modelDestinationPath, 'Model');
+  await createIfNotExists(serviceDestinationPath, 'Service');
+  await createIfNotExists(controllerDestinationPath, 'Controller');
+  await createIfNotExists(routeDestinationPath, 'Router');
 })();

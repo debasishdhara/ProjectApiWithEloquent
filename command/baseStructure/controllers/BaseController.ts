@@ -10,7 +10,7 @@ export class MBaseController {
   static async createSBase(req: Request, res: Response): Promise<void> {
     try {
       const data = req.body;
-      const result = await MBaseService.create('MBase', data); // Replace 'MBase' with dynamic model name if needed
+      const result = await MBaseService.create(data); // Replace 'MBase' with dynamic model name if needed
       res.status(200).json({ success: true, data: result });
     } catch (error: any) {
       res.status(200).json({ success: false, error: error.message });
@@ -20,7 +20,7 @@ export class MBaseController {
   // Get a list of SBases
   static async getSBases(req: Request, res: Response): Promise<void> {
     try {
-      const result = await MBaseService.getAll('MBase');
+      const result = await MBaseService.getAll();
       res.status(200).json({ success: true, data: result });
     } catch (error: any) {
       res.status(200).json({ success: false, error: error.message });
@@ -31,7 +31,7 @@ export class MBaseController {
   static async getSBase(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const result = await MBaseService.getById('MBase', id);
+      const result = await MBaseService.getById(id);
       if (result) {
         res.status(200).json({ success: true, data: result });
       } else {
@@ -47,7 +47,7 @@ export class MBaseController {
     try {
       const { id } = req.params;
       const data = req.body;
-      const result = await MBaseService.update('MBase', id, data);
+      const result = await MBaseService.update(id, data);
       if (result) {
         res.status(200).json({ success: true, data: result });
       } else {
@@ -62,7 +62,7 @@ export class MBaseController {
   static async deleteSBase(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const success = await MBaseService.delete('MBase', id);
+      const success = await MBaseService.delete(id);
       if (success) {
         res.status(200).json({ success: true, message: 'Deleted successfully' });
       } else {
