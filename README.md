@@ -1,84 +1,70 @@
-# ⚙️ Component CLI
-
-This project supports custom CLI commands to **generate** and **delete** component scaffolding (Model, Controller, Service, Route) automatically.
+Here’s an updated `README.md` section you can include to document your NPM scripts clearly and professionally:
 
 ---
 
-## 📦 Generate a Component
+## 📜 Available NPM Scripts
 
-Use the following command to create a new component:
-
-```bash
-npm run make:component <component-name>
-
-Here's a clean and properly formatted `README.md` based on your description:
-
-````markdown
-# ⚙️ Component CLI
-
-This project includes CLI scripts to **generate** and **delete** a full component structure (Model, Controller, Service, Route) using a single command.
-
----
-
-## 📦 Generate a Component
-
-Use the following command to **generate** a new component:
-
-```bash
-npm run make:component <component-name>
-````
-
-### Example
-
-```bash
-npm run make:component product
-```
-
-This will generate the following files:
-
-```
-app/
-├── model/
-│   └── Product.ts
-├── controller/
-│   └── productController.ts
-├── service/
-│   └── productService.ts
-routes/
-└── productRoutes.ts
-```
-
-> ✅ The component name is automatically formatted:
->
-> * `PascalCase` for models
-> * `camelCase` for other files
+| Script                     | Description                                                           | Example Usage                      |
+| -------------------------- | --------------------------------------------------------------------- | ---------------------------------- |
+| `npm run start`            | Starts the application with Nodemon and ts-node.                      | `npm run start`                    |
+| `npm run dev`              | Alias for `start`, useful for development.                            | `npm run dev`                      |
+| `npm run make:component`   | Creates a new structure with Component, Controller, Model, Service and Route. | `npm run make:component Product`   |
+| `npm run delete:component` | Deletes an existing component structure.                              | `npm run delete:component Product` |
+| `npm run make:route`       | Generates full CRUD route handlers with Swagger docs.                 | `npm run make:route POST User`     |
+| `npm run make:service`     | Generates a service file for business logic.                          | `npm run make:service UserService` |
+| `npm run make:model`       | Creates a new database model file.                                    | `npm run make:model Product`       |
+| `npm run make:controller`  | Creates a controller file (reuses model generator for now).           | `npm run make:controller Product`  |
+| `npm run generate:key`     | Generates fresh JWT secret and refresh keys in `.env`.                | `npm run generate:key`             |
+| `npm run make:auth`        | Sets up JWT or Passport authentication middleware and generates keys. | `npm run make:auth`                |
 
 ---
 
-## 🗑 Delete a Component
+## 🔥 Quick Examples
 
-Use the following command to **delete** a component:
-
-```bash
-npm run delete:component <component-name>
-```
-
-### Example
+### ➡️ Generate a JWT Secret Key
 
 ```bash
-npm run delete:component product
+npm run generate:key
 ```
 
-This will delete all associated files for the `product` component.
+### ➡️ Create a Compact Component Structure
+
+```bash
+npm run make:component Product
+```
+
+### ➡️ Generate Routes (with Swagger)
+
+**Singular route into `defaultRoutes.js`:**
+
+```bash
+npm run make:route GET User s
+```
+
+**Normal route (creates `OrderRoutes.js`):**
+
+```bash
+npm run make:route POST Order
+```
+
+### ➡️ Create a New Database Model
+
+```bash
+npm run make:model Product
+```
+
+### ➡️ Create a New Controller
+
+```bash
+npm run make:controller Product
+```
+
+### ➡️ Generate Authentication (JWT or Passport)
+
+```bash
+npm run make:auth
+```
 
 ---
 
-## 🚫 Restrictions
-
-* Component names must **not** be one of the following: `default`, `pbase`, `mbase`, `sbase`
-* Deleting components is **irreversible**. Use with caution.
-
-```
-
-Let me know if you'd like to include route auto-registration or Swagger schema updates in the README as well.
-```
+Would you like this content saved as a ready-to-paste `README.md` file?
