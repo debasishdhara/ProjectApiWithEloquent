@@ -109,11 +109,61 @@ export async function connectSQL(databaseType: 'mysql' | 'postgres' | 'sqlite') 
   }
 
   // Sync the models and update the database schema if needed
-  await sequelize.sync({ alter: true }); // this will update the database schema based on the model
+  await sequelize.sync(); // this will update the database schema based on the model
   cachedModels = models;
   return { sequelize, cachedModels };
 }
 
+
+let sequelize: Sequelize | null = null;
+// for migration ppurposes need to refresh the models
+export async function refreshSQLModels(databaseType: 'mysql' | 'postgres' | 'sqlite') {
+  if (!sequelize) {
+    const conn = await connectSQL(databaseType);
+    sequelize = conn.sequelize;
+  }
+
+  const modelDefinitions = await loadModels();
+  cachedModels = cachedModels || {};
+
+  for (const [modelName, def] of Object.entries(modelDefinitions)) {
+    if (cachedModels[modelName]) continue;
+
+    const modelAttributes: any = {};
+    for (const [key, field] of Object.entries(def.schema)) {
+      const typedField = field as FieldDefinition;
+      const fieldType: any = typeMap[typedField.type.toUpperCase()] || DataTypes.STRING;
+      
+      modelAttributes[key] = {
+        type: fieldType,
+        allowNull: typedField.allowNull ?? true,
+        unique: typedField.unique ?? false,
+      };
+    }
+
+    const model = sequelize.define(modelName, modelAttributes, {
+      tableName: def.tableName || modelName.toLowerCase(),
+      timestamps: def.timestamps ?? true,
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+      paranoid: def.softDelete ?? false,
+      deletedAt: 'deleted_at',
+      underscored: true,
+    });
+
+    (model as CustomModelStatic).schemaOptions = {
+      softDelete: def.softDelete ?? false,
+      timestamps: def.timestamps ?? true,
+      tableName: def.tableName || modelName.toLowerCase(),
+    };
+
+    cachedModels[modelName] = model;
+  }
+
+  // Alter the models and schema without deleting data
+  await sequelize.sync({ alter: true }); // This safely updates the schema
+  return cachedModels;
+}
 
 export async function getSQLModels(DBType: 'mysql' | 'postgres' | 'sqlite') {
   if (!cachedModels) {

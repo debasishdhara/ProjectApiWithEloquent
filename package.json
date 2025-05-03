@@ -6,7 +6,8 @@
     "start": "nodemon --exec ts-node index.ts",
     "dev": "nodemon --exec ts-node index.ts",
     "make:component": "ts-node command/generate-component.ts",
-    "delete:component": "ts-node command/delete-component.ts"
+    "delete:component": "ts-node command/delete-component.ts",
+    "make:route": "ts-node command/generate-routes.ts"
   },
   "keywords": ["nodejs", "express", "typescript", "sequelize", "mysql", "postgresql", "sqlite", "mongodb", "swagger","api","eloquent", "framework"],
   "author": "Debasish",

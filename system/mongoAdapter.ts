@@ -160,7 +160,61 @@ export function convertMongoModelsToSwaggerSchemas(models: Record<string, any>) 
     return schemas;
 }
 
-
+export async function refreshMongoModels() {
+    const models = await loadModels();
+    
+    // Iterate over each model and update or create it in the Mongoose cache
+    Object.values(models).forEach((model: any) => {
+      if (model.schema && model.modelName) {
+        const mongooseSchemaDef: Record<string, any> = {};
+        
+        for (const [field, config] of Object.entries(model.schema)) {
+          const fieldConfig: any = {};
+          const cfg = config as { type: string; allowNull?: boolean; unique?: boolean };
+          
+          const mongooseType = typeMap[cfg.type];
+          if (!mongooseType) {
+            console.warn(`Unsupported type "${cfg.type}" in model "${model.modelName}" field "${field}"`);
+            continue;
+          }
+  
+          fieldConfig.type = mongooseType;
+  
+          if (cfg.allowNull === false) {
+            fieldConfig.required = true;
+          }
+  
+          if (cfg.unique) {
+            fieldConfig.unique = true;
+          }
+  
+          mongooseSchemaDef[field] = fieldConfig;
+        }
+  
+        const schemaOptions = {
+          timestamps: model.timestamps
+            ? { createdAt: 'created_at', updatedAt: 'updated_at' }
+            : false,
+          versionKey: false,
+          collection: model.tableName || undefined,
+          softDelete: model.softDelete || false,
+        };
+  
+        const mongooseSchema = new Schema(mongooseSchemaDef, schemaOptions);
+  
+        if (model.softDelete) {
+          mongooseSchema.add({
+            deleted_at: { type: Date, default: null },
+          });
+        }
+  
+        cachedMongoModels[model.modelName] = mongoose.model(model.modelName, mongooseSchema);
+      }
+    });
+    return cachedMongoModels;
+}
+  
+  
 export async function getMongoModels() {
   if (!cachedMongoModels) {
     const { cachedMongoModels } = await connectMongo();
