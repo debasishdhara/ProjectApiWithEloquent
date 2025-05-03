@@ -23,6 +23,10 @@ export async function createFile(
   try {
     let data = await fs.readFile(sourcePath, 'utf8');
 
+    if(data.includes('// @ts-ignore')){
+      data = data.replace('// @ts-ignore', '');
+    }
+
     if (data.includes('Pbase')) {
       data = data.replace(/Pbase/g, pluralize.plural(routerName));
     }
@@ -34,7 +38,10 @@ export async function createFile(
     if (data.includes('SBase')) {
       data = data.replace(/SBase/g, (routerName).toLowerCase());
     }
-
+    
+    if (data.includes('base')) {
+      data = data.replace(/base/g, (routerName).toLowerCase());
+    }
     await fs.writeFile(destinationPath, data, 'utf8');
     return true;
   } catch (err) {
