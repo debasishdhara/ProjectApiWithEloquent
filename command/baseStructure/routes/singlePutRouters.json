@@ -1,0 +1,50 @@
+{
+  "base":{
+    "put": {
+      "functions": [], 
+      "summary": "base route summery", 
+      "tags": ["base"],      
+      "security": [],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "base successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "success": { "type": "boolean" },
+                      "message": { "type": "string" }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "success": { "type": "boolean" },
+                      "error": { "type": "string" }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
